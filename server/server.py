@@ -115,10 +115,10 @@ class FileServer():
     self.__files_directory = files_directory
     self.__private_key_file = private_key_file
     self.__cert_file = cert_file
-    with open(self.__private_key_file, "rb") as fh:
-      private_key = fh.read()
-    with open(self.__cert_file, "rb") as fh:
-      certificate_chain = fh.read()
+    # with open(self.__private_key_file, "rb") as fh:
+    #   private_key = fh.read()
+    # with open(self.__cert_file, "rb") as fh:
+    #   certificate_chain = fh.read()
 
     self.__server = grpc.server(futures.ThreadPoolExecutor(max_workers=20))
     file_pb2_grpc.add_FileServicer_to_server(FileServicer(self.__files_directory), self.__server)

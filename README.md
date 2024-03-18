@@ -33,7 +33,7 @@ Original Repo: https://github.com/r-sitko/grpc-file-transfer/blob/master/server/
         ```
     - upload file *test_file.txt* (by defaukt in a const dir)
         ```bash
-        python3 -m client.main -i localhost -p 8000 -c cert/server.crt upload -f gatos.txt
+        python3 -m client.main -i localhost -p 8000 -c cert/server.crt -dir resources/client  upload  -f damian.jpg -p part0003.txt
         ```
 ## Description of client and server arguments
 

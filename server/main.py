@@ -19,7 +19,6 @@ def main():
   logging.basicConfig(level=logging.INFO, format=log_fmt)
   ip_address, port, max_workers, files_directory, private_key_file, cert_file = initialize()
   
-
   server = FileServer(
     ip_address,
     port,
