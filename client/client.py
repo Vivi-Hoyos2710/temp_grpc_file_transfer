@@ -10,17 +10,21 @@ from protos.file_pb2_grpc import FileStub
 logger = logging.getLogger(__name__)
 
 class FileClient:
-  def __init__(self, ip_address, port, cert_file):
+  def __init__(self, ip_address, port, cert_file,root_dir):
     self.__ip_address = ip_address
     self.__port = port
     self.__cert_file = cert_file
+    self.__files_directory=root_dir
 
     with open(self.__cert_file, "rb") as fh:
       trusted_cert = fh.read()
       
-    credentials = grpc.ssl_channel_credentials(root_certificates=trusted_cert)
-    channel = grpc.secure_channel("{}:{}"
-      .format(self.__ip_address, self.__port), credentials)
+    # credentials = grpc.ssl_channel_credentials(root_certificates=trusted_cert)
+    # channel = grpc.secure_channel("{}:{}"
+    #   .format(self.__ip_address, self.__port), credentials)
+    # self.stub = FileStub(channel)
+      # Crear un canal gRPC inseguro
+    channel = grpc.insecure_channel("{}:{}".format(self.__ip_address, self.__port))
     self.stub = FileStub(channel)
 
     logger.info("created instance " + str(self))
@@ -30,26 +34,32 @@ class FileClient:
     response_stream = self.stub.list(ListReq())
     self.__list_files(response_stream)
 
-  def download(self, file_name, out_file_name, out_file_dir):
-    logger.info("downloading file:{file_name} to {out_file_dir}/{out_file_name}"
-      .format(
-        file_name=file_name,
-        out_file_dir=out_file_dir,
-        out_file_name=out_file_name))
-    req= FileDownloadReq(name=file_name)
-    response_stream = self.stub.download(req)
-    self.__download_file(response_stream, out_file_name, out_file_dir)
-
-  def __download_file(self, response_stream, out_file_name, out_file_dir):
+  def download(self, file_name,chunk_name):
+    logger.info("downloading chunk {chunk} from file:{file_name}".format(file_name=file_name,chunk=chunk_name))
+    req= FileDownloadReq(filename=file_name,chunkname=chunk_name)
+   
     try:
-      with open(out_file_dir + "/" + out_file_name, "wb") as fh:
-          for response in response_stream:
-            fh.write(response.buffer)
+      #Remote Call procedure download
+      response_bytes = self.stub.download(req)
+      self.__saving_chunk(response_bytes, chunk_name, file_name)
     except grpc.RpcError as e:
-      status_code = e.code()
-      logger.error("Error details: {}, status name: {}, status value: {}"
-        .format(e.details(), status_code.name, status_code.value))
-  def upload(self,file_name):
+        logger.error("gRPC error: {}".format(e.details()))
+        print("An error occurred while downloading the chunk: {}".format(e.details()))
+    
+
+  def __saving_chunk(self, response_bytes, out_file_name, out_file_dir):
+    try:
+      #Si directorio no existe, lo crea para guardar las particiones del archivo.
+      directory=os.path.join(self.__files_directory, out_file_dir)
+      if not os.path.exists(directory):
+        os.mkdir(directory)
+      with open(directory+"/"+out_file_name, "wb") as fh:
+        fh.write(response_bytes.buffer)
+    except Exception as e:
+        print("An error occurred while saving the chunk: {}".format(e))
+        logger.error("Error while saving chunk: {}".format(e))
+      
+  def upload(self,file_name,out_file_dir):
     file_path= get_file_path(file_name= file_name)
     logger.info(file_path)
     try:

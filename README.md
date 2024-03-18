@@ -3,30 +3,6 @@
 SSL secured file transfer gRPC client and server written in Python language.
 Original Repo: https://github.com/r-sitko/grpc-file-transfer/blob/master/server/main.py
 
-### Project structure
-
-```
-|-- cert - SSL certificates
-|   `-- generate.sh - bash script for generating SSL certificates
-|-- client - package with gRPC file transfer client code
-|   |-- client.py
-|   |-- __init__.py
-|   `-- main.py
-|-- protos - folder with gRPC interface for file transfer service
-|   |-- file.proto
-|   `-- __init__.py
-|-- README.md
-|-- requirements.txt
-|-- resources
-|   |-- client - example folder where files can be downloaded
-|   `-- server - example folder for example files which can be downloaded
-|       |-- test_file2.txt
-|       `-- test_file.txt
-`-- server - package with gRPC file transfer server code
-    |-- __init__.py
-    |-- main.py
-    `-- server.py
-```
 
 ### Prerequisites
 
@@ -42,16 +18,6 @@ Original Repo: https://github.com/r-sitko/grpc-file-transfer/blob/master/server/
         ```bash
         pip3 install -r requirements.txt
         ```
-    - Grant the owner of *cert/generate.sh* file execution permissions.
-        ```bash
-        chmod u+x cert/generate.sh
-        ```
-    - Generate certificate.\
-        **Warning:** Don't use such created certificates for production environment.
-        ```bash
-        cert/generate.sh /CN=localhost
-        ```
-        CN (Common Name) must match server name that you connect to with the client. In this example we will use *localhost*.
 1. Lauch gRPC file transfer server in first console:
     ```bash
     python3 server/main.py 
@@ -63,7 +29,7 @@ Original Repo: https://github.com/r-sitko/grpc-file-transfer/blob/master/server/
         ```
     - download *test_file.txt* file from server to *resources/client* directory:
         ```bash
-        python3 -m client.main -i localhost -p 5000 -c cert/server.crt download -d resources/client -f test_file.txt
+        python3 -m client.main -i localhost -p 8000 -c cert/server.crt -dir resources/client  download  -f helloWorld.txt -p part001.txt
         ```
     - upload file *test_file.txt* (by defaukt in a const dir)
         ```bash

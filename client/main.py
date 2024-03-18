@@ -16,13 +16,14 @@ def main():
     "-p", "--port", required=True, type=str, help="port address of server")
   parser.add_argument(
     "-c", "--cert_file", required=True, type=str, help="certificate file path")
-
+  parser.add_argument(
+    "-dir", "--root_dir", required=True, type=str, help="root client directory")
   subparsers = parser.add_subparsers(dest="action", help="client possible actions")
   subparsers.required = True
 
   download_parser = subparsers.add_parser("download", help="download file from server")
-  download_parser.add_argument("-d", "--directory", required=True, type=str, help="where to save files")
-  download_parser.add_argument("-f", "--file", required=True, type=str, help="file name to download")
+  download_parser.add_argument("-f", "--filename", required=True, type=str, help="file name to download")
+  download_parser.add_argument("-p", "--partition", required=True, type=str, help="chunk name (partition)")
   upload_parser = subparsers.add_parser("upload",help="upload file to server")
   upload_parser.add_argument("-f", "--file", required=True, type=str, help="file name to upload")
   subparsers.add_parser("list", help="list files on server")
@@ -36,11 +37,11 @@ def main():
       cert_file=args.cert_file,
       action=args.action))
 
-  client = FileClient(args.ip_adress, args.port, args.cert_file)
+  client = FileClient(args.ip_adress, args.port, args.cert_file,args.root_dir)
 
   action = args.action
   if action == "download":
-    client.download(args.file, args.file, args.directory)
+    client.download(args.filename, args.partition)
   elif action == "list":
     client.list()
   elif action== "upload":

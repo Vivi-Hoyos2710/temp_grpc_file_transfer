@@ -11,33 +11,41 @@ class FileDownloadRsp(_message.Message):
     def __init__(self, buffer: _Optional[bytes] = ...) -> None: ...
 
 class FileDownloadReq(_message.Message):
-    __slots__ = ("name",)
-    NAME_FIELD_NUMBER: _ClassVar[int]
-    name: str
-    def __init__(self, name: _Optional[str] = ...) -> None: ...
+    __slots__ = ("filename", "chunkname")
+    FILENAME_FIELD_NUMBER: _ClassVar[int]
+    CHUNKNAME_FIELD_NUMBER: _ClassVar[int]
+    filename: str
+    chunkname: str
+    def __init__(self, filename: _Optional[str] = ..., chunkname: _Optional[str] = ...) -> None: ...
 
 class ListReq(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
 
-class ListRsp(_message.Message):
-    __slots__ = ("name", "size")
-    NAME_FIELD_NUMBER: _ClassVar[int]
+class FileListReq(_message.Message):
+    __slots__ = ("filename",)
+    FILENAME_FIELD_NUMBER: _ClassVar[int]
+    filename: str
+    def __init__(self, filename: _Optional[str] = ...) -> None: ...
+
+class FileListRsp(_message.Message):
+    __slots__ = ("filename", "size")
+    FILENAME_FIELD_NUMBER: _ClassVar[int]
     SIZE_FIELD_NUMBER: _ClassVar[int]
-    name: str
+    filename: str
     size: int
-    def __init__(self, name: _Optional[str] = ..., size: _Optional[int] = ...) -> None: ...
+    def __init__(self, filename: _Optional[str] = ..., size: _Optional[int] = ...) -> None: ...
 
 class FileUploadReq(_message.Message):
-    __slots__ = ("buffer", "name")
+    __slots__ = ("filename", "chunkname", "buffer")
+    FILENAME_FIELD_NUMBER: _ClassVar[int]
+    CHUNKNAME_FIELD_NUMBER: _ClassVar[int]
     BUFFER_FIELD_NUMBER: _ClassVar[int]
-    NAME_FIELD_NUMBER: _ClassVar[int]
+    filename: str
+    chunkname: str
     buffer: bytes
-    name: str
-    def __init__(self, buffer: _Optional[bytes] = ..., name: _Optional[str] = ...) -> None: ...
+    def __init__(self, filename: _Optional[str] = ..., chunkname: _Optional[str] = ..., buffer: _Optional[bytes] = ...) -> None: ...
 
 class UploadRsp(_message.Message):
-    __slots__ = ("message",)
-    MESSAGE_FIELD_NUMBER: _ClassVar[int]
-    message: str
-    def __init__(self, message: _Optional[str] = ...) -> None: ...
+    __slots__ = ()
+    def __init__(self) -> None: ...
