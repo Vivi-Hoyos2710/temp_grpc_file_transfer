@@ -1,7 +1,5 @@
 import argparse
 import logging
-import sys
-
 from client.client import FileClient
 
 def main():
@@ -25,7 +23,9 @@ def main():
   download_parser.add_argument("-f", "--filename", required=True, type=str, help="file name to download")
   download_parser.add_argument("-p", "--partition", required=True, type=str, help="chunk name (partition)")
   upload_parser = subparsers.add_parser("upload",help="upload file to server")
-  upload_parser.add_argument("-f", "--file", required=True, type=str, help="file name to upload")
+  upload_parser.add_argument("-f", "--filename", required=True, type=str, help="file name to upload")
+  upload_parser.add_argument("-p", "--partition", required=True, type=str, help="chunk name (partition) to upload")
+
   subparsers.add_parser("list", help="list files on server")
 
   args = parser.parse_args()
@@ -45,7 +45,7 @@ def main():
   elif action == "list":
     client.list()
   elif action== "upload":
-    client.upload(args.file)
+    client.upload(args.filename,args.partition)
   else:
     logger.error("no such action " + action)
 

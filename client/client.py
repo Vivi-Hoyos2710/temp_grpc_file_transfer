@@ -15,6 +15,7 @@ class FileClient:
     self.__port = port
     self.__cert_file = cert_file
     self.__files_directory=root_dir
+    self._PIECE_SIZE_IN_BYTES = 1024 * 1024 # 1MB
 
     with open(self.__cert_file, "rb") as fh:
       trusted_cert = fh.read()
@@ -44,7 +45,6 @@ class FileClient:
       self.__saving_chunk(response_bytes, chunk_name, file_name)
     except grpc.RpcError as e:
         logger.error("gRPC error: {}".format(e.details()))
-        print("An error occurred while downloading the chunk: {}".format(e.details()))
     
 
   def __saving_chunk(self, response_bytes, out_file_name, out_file_dir):
@@ -59,17 +59,20 @@ class FileClient:
         print("An error occurred while saving the chunk: {}".format(e))
         logger.error("Error while saving chunk: {}".format(e))
       
-  def upload(self,file_name,out_file_dir):
-    file_path= get_file_path(file_name= file_name)
-    logger.info(file_path)
+  def upload(self,file_name,chunk_name):
+    directory=os.path.join(self.__files_directory,file_name, chunk_name)
     try:
-      with open(file_path, "rb") as file:
-        for chunk in iter(lambda: file.read(4096), b""):
-            upload_request = FileUploadReq(name=file_name, buffer=chunk)
-            response = self.stub.upload(upload_request)
-            print(response)
-    except:
-      print('An exception occurred')
+      with open(directory, "rb") as fh:
+        piece = fh.read(self._PIECE_SIZE_IN_BYTES)
+        if not piece:
+          raise EOFError
+        req= FileUploadReq(filename=file_name,chunkname=chunk_name,buffer=piece)
+        self.stub.upload(req)
+        logger.info("Uploading ok")
+    except grpc.RpcError as e:
+        logger.error("gRPC error: {}".format(e.details()))    
+    except Exception as e:
+      logger.error("internal error: {}".format(e))
     
 
   def __list_files(self, response_stream):
@@ -82,11 +85,3 @@ class FileClient:
         ip_address=self.__ip_address,
         port=self.__port,
         cert_file=self.__cert_file)
-def get_file_path(file_name):
-    # Obtener la ruta absoluta del directorio actual
-    current_directory = "resources/client"
-
-    # Unir la ruta absoluta del directorio actual con el nombre de archivo proporcionado
-    file_path = os.path.join(current_directory, file_name)
-
-    return file_path

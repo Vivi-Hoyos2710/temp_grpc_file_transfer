@@ -85,16 +85,24 @@ class FileServicer(file_pb2_grpc.FileServicer):
         file_name = request.filename
         file_partition_name= request.chunkname
         file_partition=request.buffer
-        #si no existe directorio, lo crea.
-        directory=os.path.join(self.__files_directory, file_name)
-        if not os.path.exists(directory):
-          os.mkdir(directory)
-        #recibe chunk en bytes con su respectivo nombre
-        file_to_write= os.path.join(directory,file_partition_name)
-        logger.info("receiving {partition} partition from file: {file_name}".format(file_name=file_name,partition=file_partition_name))
-        with open(file_to_write, "wb") as fh:
-          fh.write(file_partition)
-        return UploadRsp(message="")
+        try:
+          #si no existe directorio, lo crea.
+          directory=os.path.join(self.__files_directory, file_name)
+          if not os.path.exists(directory):
+            os.mkdir(directory)
+          #recibe chunk en bytes con su respectivo nombre
+          file_to_write= os.path.join(directory,file_partition_name)
+          logger.info("receiving {partition} partition from file: {file_name}".format(file_name=file_name,partition=file_partition_name))
+          with open(file_to_write, "wb") as fh:
+            fh.write(file_partition)
+          return UploadRsp()
+        except Exception as e:
+          logger.error("Error while reading or receiving file: {}".format(e))
+          # Manejar cualquier otro error que pueda ocurrir durante la lectura del archivo
+          context.set_code(grpc.StatusCode.INTERNAL)
+          context.set_details("Error while reading file or receiving file")
+          return UploadRsp()
+  
 
 
 class FileServer():
