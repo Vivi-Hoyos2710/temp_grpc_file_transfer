@@ -25,7 +25,7 @@ Original Repo: https://github.com/r-sitko/grpc-file-transfer/blob/master/server/
 1. Lauch gRPC file transfer client in second console:
     - list available files to download from server
         ```bash
-        python3 -m client.main -i localhost -p 5000 -c cert/server.crt list
+        python3 -m client.main -i localhost -p 8000 -c cert/server.crt -dir resources/client list
         ```
     - download *test_file.txt* file from server to *resources/client* directory:
         ```bash

@@ -32,7 +32,7 @@ class FileClient:
 
   def list(self):
     logger.info("downloading files list from server")
-    response_stream = self.stub.list(ListReq())
+    response_stream = self.stub.listAll(ListReq())
     self.__list_files(response_stream)
 
   def download(self, file_name,chunk_name):
@@ -77,7 +77,7 @@ class FileClient:
 
   def __list_files(self, response_stream):
     for response in response_stream:
-      print("file name: {}, size: {} bytes".format(response.name, response.size))
+      print("file name: {}, size: {} bytes".format(response.filename, response.size))
 
   def __str__(self):
     return "ip:{ip_address}, port:{port}, cert_file:{cert_file}"\
